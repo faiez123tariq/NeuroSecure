@@ -4,9 +4,9 @@
   "installCommand": "npm install",
   "rewrites": [{ "source": "/(.*)", "destination": "/api" }],
   "functions": {
-    "api/index.ts": {
+    "api/index.js": {
       "maxDuration": 30,
-      "includeFiles": "node_modules/.prisma/client/**"
+      "includeFiles": "dist/** node_modules/.prisma/client/** node_modules/@prisma/client/**"
     }
   }
 }
