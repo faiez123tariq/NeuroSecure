@@ -14,9 +14,13 @@ const envSchema = z
       .default("3000")
       .transform((v) => Number.parseInt(v, 10))
       .pipe(z.number().int().positive()),
+    /** On Vercel, `NODE_ENV` is often omitted during module load — treat as production. */
     NODE_ENV: z
       .enum(["development", "production", "test"])
-      .default("development"),
+      .optional()
+      .transform((v) =>
+        v != null ? v : process.env.VERCEL === "1" ? "production" : "development"
+      ),
     CORS_ORIGIN: z.string().default("*"),
     GMAIL_USER: z.string().email(),
     GMAIL_APP_PASSWORD: z.string().min(1),

@@ -7,7 +7,7 @@ AI-powered browser privacy protection. This monorepo contains:
 - `scripts/` — Helper scripts (face model downloader)
 
 System requirements:
-- **Node.js 24.x** (LTS or current)
+- **Node.js 20.x** locally (aligned with backend `engines`; Vercel uses 20.x for production API)
 - **npm** (no pnpm/yarn)
 - **Windows 11** (all scripts use `cross-env` and `rimraf` — fully cross-platform)
 - A Supabase project (free tier is fine)
@@ -198,6 +198,32 @@ npm run build
 | PATCH | `/api/v1/user/settings` | Bearer | update WhatsApp number |
 
 All endpoints return `{ error, message, statusCode }` on failure.
+
+---
+
+## Deploy backend to Vercel
+
+The API is wired for serverless Express via **`api/index.js`** (loads **`dist/app.js`**), **`vercel.json`** rewrites, and **`npm run vercel-build`** (**`prisma generate` + TypeScript compile**).
+
+1. Push the repo to GitHub (or another Git provider).
+2. In **[Vercel](https://vercel.com)** → **Add Project** → import the repo.
+3. **Root Directory**: set **`backend`** (when the repo root is `neurosecure/`).
+4. **Framework Preset**: **Other**.
+5. **Node.js**: **20.x** (matches **`package.json`** `engines`).
+6. **Install Command**: `npm install` (default is fine).
+7. **Build Command**: leave blank so **Vercel runs the `vercel-build` script** (`npx prisma generate && npm run build`).
+8. **Environment variables**: paste every variable from **`backend/.env.example`** except `PORT` is optional—the same keys must exist under **Production** (and Preview if needed). Use **`NODE_ENV=production`**. Prefer Supabase **`DATABASE_URL`** with the **pooler** (`:6543` + `pgbouncer=true` when shown in the dashboard).
+9. Deploy. Smoke-test **`https://YOUR-PROJECT.vercel.app/health`**, then **`GET /`** (confirmation HTML).
+
+Point the extension at production:
+
+```env
+PLASMO_PUBLIC_BACKEND_URL=https://YOUR-PROJECT.vercel.app
+```
+
+Rebuild the extension and reload it in Chrome (`npm run build` in `extension/`).
+
+If the function crashes with **`FUNCTION_INVOCATION_FAILED`**, open the deployment → **Functions** → **`api/index`** logs: missing variables show as **`[env] Invalid configuration`**.
 
 ---
 
