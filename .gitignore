@@ -1,0 +1,13 @@
+node_modules/
+.env
+.env.local
+*.log
+dist/
+build/
+.plasmo/
+.cache/
+.DS_Store
+*.tsbuildinfo
+extension/public/models/*.json
+extension/public/models/*-shard*
+!extension/public/models/.gitkeep
