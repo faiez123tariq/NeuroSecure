@@ -1,6 +1,7 @@
-import { Plan, PrismaClient, User } from "@prisma/client";
+import { Plan, User } from "@prisma/client";
+import { prisma } from "../lib/prisma";
 
-export const prisma = new PrismaClient();
+export { prisma };
 
 export interface CreateUserInput {
   id: string;

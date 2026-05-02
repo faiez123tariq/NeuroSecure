@@ -20,18 +20,23 @@ const envSchema = z
     CORS_ORIGIN: z.string().default("*"),
     GMAIL_USER: z.string().email(),
     GMAIL_APP_PASSWORD: z.string().min(1),
-    ALERT_EMAIL: z.string().email(),
+    /** Optional ops inbox CC; omit or empty to skip */
+    ALERT_EMAIL: z
+      .union([z.string().email(), z.literal("")])
+      .optional()
+      .transform((v) => v ?? ""),
   })
   .passthrough();
 
 const parsed = envSchema.safeParse(process.env);
 
 if (!parsed.success) {
-  console.error(
-    "❌ Invalid environment configuration:\n",
+  const msg = `[env] Invalid configuration: ${JSON.stringify(
     parsed.error.flatten().fieldErrors
-  );
-  process.exit(1);
+  )}`;
+  console.error("❌", msg);
+  // Throw so Vercel logs show the validation error instead of opaque exit codes.
+  throw new Error(msg);
 }
 
 export const env = parsed.data;
